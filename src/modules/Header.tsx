@@ -12,6 +12,7 @@ const Headers = ({ counter }: HeaderProps) => {
     return (
         <header>
             <nav>
+{/* TO DO: create a custom select component */}
                 <div className="custom-select">
                     <select defaultValue="">
                         <option value="" disabled hidden>Comics</option>
