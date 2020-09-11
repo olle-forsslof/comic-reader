@@ -1,37 +1,38 @@
 import React from 'react'
-import styled from 'styled-components'
-// import './MainContainer.scss'
 
 type MainProps = {
-    xPosition?: number;
-    largeImgs: string[];
-    smallImgs: string[];
+  xPosition?: number;
+  largeImages: { id: number; src: string; size: string; }[];
+  smallImages: { id: number; src: string; size: string; }[];
+  title: string;
 }
 
-const MainContainer = ({xPosition, largeImgs, smallImgs}: MainProps) => {
-    
-    const makePage = () => {
-        return largeImgs.map( (page, index) => {
-            return (
-            <div className="card" key={page} >
-                <picture>
-                    <source media="(min-width: 800px)" srcSet={page} />
-                    <source media="(min-width: 200px)" srcSet={smallImgs[index]} />
-                    <img src={page} loading="lazy" alt={`comic page number ${index.toString()}`} />
-                </picture>
-            </div> 
-            )
-        })
-    }
+const MainContainer = ({ xPosition, largeImages, smallImages, title }: MainProps) => {
 
-    return (
-        <section className="container" >
-            <div className="pages-container" style={ {transform: `translateX(${xPosition}vw)`} } >
-                { makePage() }
-            </div>   
-        </section>
-        
-    )
+  const mainPath = __dirname + `/../../build/comics/on_tour/`
+
+  const makePage = () => {
+    return largeImages.map((page, index) => {
+      return (
+        <div className="card" key={index % 2 === 0 ? page.id + index + page.src : page.id + page.src} >
+          <picture>
+            <source media="(min-width: 800px)" srcSet={page.src} />
+            <source media="(min-width: 200px)" srcSet={smallImages[index].src} />
+            <img src={page.src} loading="lazy" alt={`comic page number ${(index + 1).toString()}`} />
+          </picture>
+        </div>
+      )
+    })
+  }
+
+  return (
+    <section className="container" >
+      <div className="pages-container" style={{ transform: `translateX(${xPosition}vw)` }} >
+        {largeImages ? makePage() : ''}
+      </div>
+    </section>
+
+  )
 }
 
 export default MainContainer
