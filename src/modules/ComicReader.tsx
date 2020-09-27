@@ -1,40 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { useWindowDimensions } from './useWindowDimensions'
 import styled from 'styled-components'
 import './styles.scss'
 
 import MainContainer from './MainContainer'
 import Header from './Header'
 import Footer from './Footer'
-
-// const smallPages = [
-//     './../comics/testbilder/small/ontour-interior-5.png',
-//     './../comics/testbilder/small/ontour-interior-6.png',
-//     './../comics/testbilder/small/ontour-interior-7.png',
-//     './../comics/testbilder/small/ontour-interior-8.png',
-//     './../comics/testbilder/small/ontour-interior-9.png',
-//     './../comics/testbilder/small/ontour-interior-10.png',
-//     './../comics/testbilder/small/ontour-interior-11.png',
-//     './../comics/testbilder/small/ontour-interior-12.png',
-//     ]
-
-// const largePages = [
-//     './../comics/testbilder/large/ontour-interior-5.png',
-//     './../comics/testbilder/large/ontour-interior-6.png',
-//     './../comics/testbilder/large/ontour-interior-7.png',
-//     './../comics/testbilder/large/ontour-interior-8.png',
-//     './../comics/testbilder/large/ontour-interior-9.png',
-//     './../comics/testbilder/large/ontour-interior-10.png',
-//     './../comics/testbilder/large/ontour-interior-11.png',
-//     './../comics/testbilder/large/ontour-interior-12.png',
-//     ]
-
-// export interface Ipages {
-//   pages: [
-//     { large: string[] },
-//     { small: string[] }
-//   ],
-//   title: string
-// }
+import ComicUploader from './ComicUploader'
 
 interface Ipages {
   large: { id: number; src: string; size: string; }[]
@@ -45,16 +17,19 @@ interface Ipages {
 const ComicReader = () => {
   // Saves the current position of the page container
   const [xPos, setXpos] = useState(0)
+  const [pageWidth, setPageWidth] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPageCount, setTotalPageCount] = useState(0)
   const [titleMenu, setTitleMenu] = useState<string[]>([])
   const [selectedComic, setSelectedComic] = useState("") // "Name Name"
   const [comicPages, setComicPages] = useState<Ipages>()
 
+  const { width, height } = useWindowDimensions()
+
   //fetches comic titles for the select menu
   useEffect(() => {
     const fetchTitles = async () => {
-      await fetch('http://localhost:3000/online-comics/titles')
+      await fetch('http://localhost:3000/api/titles')
         .then(response => response.json())
         .then(response => {
           setTitleMenu(response)
@@ -70,8 +45,9 @@ const ComicReader = () => {
 
   // fetch the comic pages of selected title -> store images names in state
   useEffect(() => {
+    const size = width >= 800 ? 'large' : 'small';
     const fetchPages = async () => {
-      await fetch(`http://localhost:3000/online-comics/${formatTitleToLowerCase(selectedComic)}`)
+      await fetch(`http://localhost:3000/api/${formatTitleToLowerCase(selectedComic)}`)
         .then(response => response.json())
         .then(response => {
           const large = extractPages(response[0].large, 'large')
@@ -136,19 +112,21 @@ const ComicReader = () => {
 
   return (
     <section className="comicReader">
+      <p>{width} x {height}</p>
       <Header
         counter={{ currentPage, totalPages: totalPageCount }}
         titles={titleMenu}
         handleChange={handleSelectedTitle}
         selectedComic={selectedComic} />
 
-      {comicPages &&
+      {comicPages ? 
         <MainContainer
           xPosition={xPos}
           largeImages={comicPages.large}
           smallImages={comicPages.small}
           title={comicPages.title} />
-      }
+        : <ComicUploader />
+        }
 
       <Footer
         nextPage={nextPage}
