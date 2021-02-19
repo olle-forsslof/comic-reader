@@ -3,4 +3,4 @@ Built with React as frontend, Node.js & Express as backend.
 
 Uses Firebase as database for comics and images.
 
-Work in progress
+Work in progresss
